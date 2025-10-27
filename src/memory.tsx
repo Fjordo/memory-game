@@ -88,15 +88,15 @@ const App: React.FC = () => {
     };
 
     return (
-        <div className="flex flex-col items-center justify-center min-h-screen bg-slate-100">
-            <h1 className="text-3xl font-bold mb-4 text-gray-800">🧠 Memory Game 10x10</h1>
-            <div className="grid grid-cols-10 gap-2 p-4 bg-white rounded-2xl shadow-md">
+        <div className="flex flex-col items-center justify-center min-h-screen bg-slate-100 px-4">
+            <h1 className="text-2xl sm:text-3xl font-bold mb-4 text-gray-800 text-center">🧠 Memory Game 10x10</h1>
+            <div className="grid grid-cols-5 sm:grid-cols-8 md:grid-cols-10 gap-1 sm:gap-2 p-2 sm:p-4 bg-white rounded-2xl shadow-md w-full max-w-6xl mx-auto">
                 {cards.map((card) => (
                     <button
                         key={card.id}
                         onClick={() => handleFlip(card.id)}
                         disabled={card.flipped || card.matched}
-                        className={`card w-12 h-12 flex items-center justify-center text-2xl font-bold rounded-lg 
+                        className={`card w-full aspect-square flex items-center justify-center text-lg sm:text-xl md:text-2xl font-bold rounded-lg 
               ${card.matched ? "matched bg-green-200" : card.flipped ? "bg-indigo-200" : "bg-slate-300 hover:bg-slate-400"}`}
                     >
                         {card.flipped || card.matched ? card.value : "❔"}
@@ -104,19 +104,19 @@ const App: React.FC = () => {
                 ))}
             </div>
 
-            <div className="mt-6 text-gray-700">
+            <div className="mt-4 sm:mt-6 text-gray-700 text-center text-sm sm:text-base">
                 Coppie trovate: {matchedCount} / {cards.length / 2}
             </div>
 
             {matchedCount === cards.length / 2 && (
-                <div className="mt-4 text-2xl font-semibold text-green-600 fade-in">
+                <div className="mt-3 sm:mt-4 text-xl sm:text-2xl font-semibold text-green-600 fade-in text-center">
                     🎉 Hai vinto! 🎉
                 </div>
             )}
 
             <button
                 onClick={resetGame}
-                className="mt-6 px-4 py-2 bg-indigo-500 text-white rounded-lg hover:bg-indigo-600 transition"
+                className="mt-4 sm:mt-6 px-3 sm:px-4 py-2 bg-indigo-500 text-white rounded-lg hover:bg-indigo-600 transition text-sm sm:text-base"
             >
                 🔁 Ricomincia
             </button>
