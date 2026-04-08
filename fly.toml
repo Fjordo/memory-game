@@ -1,0 +1,70 @@
+# Fly.io configuration file for Memory Game
+# Generated for deployment to Fly.io
+
+app = "fjordo-memory-game"
+primary_region = "cgd"  # Milan - closes to Europe
+
+[build]
+  builder = "docker"
+  dockerfile = "Dockerfile"
+
+[http_service]
+  internal_port = 80
+  protocol = "tcp"
+  
+  [[http_service.ports]]
+    port = 80
+    handlers = ["http"]
+    force_https = true
+  
+  [[http_service.ports]]
+    port = 443
+    handlers = ["tls", "http"]
+
+[http_service.checks]
+  grace_period = "5s"
+  interval = "30s"
+  method = "GET"
+  path = "/"
+  protocol = "http"
+  timeout = "3s"
+
+# Scaling configuration
+[processes]
+  app = "nginx -g 'daemon off;'"
+
+# Environment variables (if needed)
+[env]
+  # Add any environment variables here if needed
+  # ENVIRONMENT = "production"
+
+# Metrics
+[metrics]
+  port = 9090
+  handlers = ["prometheus"]
+  path = "/metrics"
+
+# Deploy signal
+# This ensures zero-downtime deployments
+[[services]]
+  processes = ["app"]
+  protocol = "tcp"
+  internal_port = 80
+  
+  [[services.ports]]
+    port = 80
+    handlers = ["http"]
+    force_https = true
+  
+  [[services.ports]]
+    port = 443
+    handlers = ["tls", "http"]
+  
+  [services.http_checks]
+    enabled = true
+    interval = "30s"
+    grace_period = "5s"
+    method = "GET"
+    path = "/"
+    protocol = "http"
+    timeout = "3s"
