@@ -1,18 +1,24 @@
 # --- Build stage ---
-FROM node:22-alpine AS build
+FROM node:25-alpine3.23 AS build
 
 WORKDIR /app
 COPY package*.json ./
-RUN npm ci
+RUN npm ci --omit=dev
 
-COPY . .
+COPY src ./src
+COPY tsconfig*.json ./
+COPY vite.config.ts ./
+COPY index.html ./
 RUN npm run build
 
 # --- Runtime stage ---
-FROM nginx:1.29-alpine
+FROM nginx:1.29.8
 
 COPY --from=build /app/dist /usr/share/nginx/html
 COPY nginx.conf /etc/nginx/conf.d/default.conf
+
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+  CMD wget --quiet --tries=1 --spider http://localhost/ || exit 1
 
 EXPOSE 80
 CMD ["nginx", "-g", "daemon off;"]

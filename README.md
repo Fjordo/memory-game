@@ -77,7 +77,7 @@ L'applicazione sarà disponibile su `http://localhost`
 
 ## 📁 Struttura del progetto
 
-```
+```text
 ├── src/
 │   ├── App.tsx           # Componente principale
 │   ├── memory.tsx        # Logica e UI del gioco
@@ -114,7 +114,7 @@ L'applicazione sarà disponibile su `http://localhost`
 ## 📝 Script disponibili
 
 | Script | Descrizione |
-|--------|-------------|
+| ------ | ----------- |
 | `npm run dev` | Avvia il dev server con hot reload |
 | `npm run build` | Compila TypeScript e crea la build di produzione |
 | `npm run lint` | Esegue ESLint per verificare la qualità del codice |
@@ -124,14 +124,4 @@ L'applicazione sarà disponibile su `http://localhost`
 
 Se trovi un bug o vuoi suggerire una feature, crea una [issue](https://github.com/Fjordo/memory-game/issues) nel repository.
 
-## 📄 Licenza
-
-Questo progetto è open source. Consulta il file LICENSE per i dettagli.
-
-## 👨‍💻 Autore
-
-**Fjordo**
-
 ---
-
-**Buon divertimento! 🎉**

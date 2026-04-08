@@ -8,4 +8,10 @@ export default defineConfig({
     react(),
     tailwindcss()
   ],
+  server: {
+    fs: {
+      strict: true,
+      deny: ['.env', '.env.*', '*.pem', '.git']
+    }
+  }
 })
