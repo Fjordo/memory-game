@@ -3,7 +3,7 @@ FROM node:25-alpine3.23 AS build
 
 WORKDIR /app
 COPY package*.json ./
-RUN npm ci --omit=dev
+RUN npm ci
 
 COPY src ./src
 COPY tsconfig*.json ./
