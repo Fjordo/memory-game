@@ -281,17 +281,20 @@ const Memory10x10: FC = () => {
             {/* Grid */}
             <div className={`grid gap-1 sm:gap-2 p-2 sm:p-4 bg-white rounded-2xl shadow-md w-full mx-auto ${colsClass} ${maxWidthClass}`}>
                 {cards.map((card) => (
-                    <button
-                        key={card.id}
-                        type="button"
-                        onClick={() => handleFlip(card.id)}
-                        disabled={card.flipped || card.matched}
-                        aria-label={card.flipped || card.matched ? card.value : "Carta coperta"}
-                        className={`w-full aspect-square flex items-center justify-center text-lg sm:text-xl md:text-2xl font-bold rounded-lg
-                            ${card.matched ? "bg-green-200" : card.flipped ? "bg-indigo-200" : "bg-slate-300 hover:bg-slate-400"}`}
-                    >
-                        {card.flipped || card.matched ? card.value : "❔"}
-                    </button>
+                    <div key={card.id} className="card-container aspect-square">
+                        <button
+                            type="button"
+                            onClick={() => handleFlip(card.id)}
+                            disabled={card.flipped || card.matched}
+                            aria-label={card.flipped || card.matched ? card.value : "Carta coperta"}
+                            className={`card-inner w-full h-full text-lg sm:text-xl md:text-2xl ${card.flipped || card.matched ? "flipped" : ""}`}
+                        >
+                            <span className="card-face card-back">❔</span>
+                            <span className={`card-face card-front ${card.matched ? "bg-green-200" : "bg-indigo-200"}`}>
+                                {card.value}
+                            </span>
+                        </button>
+                    </div>
                 ))}
             </div>
 
