@@ -1,5 +1,4 @@
-import React, { useState, useEffect } from "react";
-import "./App.css"; // <== aggiunto per usare le classi CSS personalizzate
+import { type FC, useState, useEffect } from "react";
 
 interface Card {
     id: number;
@@ -23,50 +22,54 @@ const shuffleArray = <T,>(array: T[]): T[] => {
     return newArr;
 };
 
-const App: React.FC = () => {
+const createInitialCards = (): Card[] =>
+    shuffleArray([...symbols, ...symbols]).map((val, idx) => ({
+        id: idx,
+        value: val,
+        flipped: false,
+        matched: false,
+    }));
+
+const Memory10x10: FC = () => {
     const [cards, setCards] = useState<Card[]>([]);
     const [flipped, setFlipped] = useState<number[]>([]);
     const [matchedCount, setMatchedCount] = useState(0);
     const [locked, setLocked] = useState(false);
 
     useEffect(() => {
-        const doubled = [...symbols, ...symbols].slice(0, 100);
-        const shuffled = shuffleArray(doubled).map((val, idx) => ({
-            id: idx,
-            value: val,
-            flipped: false,
-            matched: false,
-        }));
-        setCards(shuffled);
+        setCards(createInitialCards());
     }, []);
 
     const handleFlip = (id: number) => {
         if (locked) return;
-        const newCards = [...cards];
-        const card = newCards.find((c) => c.id === id);
+
+        const card = cards.find((c) => c.id === id);
         if (!card || card.flipped || card.matched) return;
 
-        card.flipped = true;
+        const newCards = cards.map((c) => c.id === id ? { ...c, flipped: true } : c);
         setCards(newCards);
+
         const newFlipped = [...flipped, id];
         setFlipped(newFlipped);
 
         if (newFlipped.length === 2) {
             setLocked(true);
-            const [first, second] = newFlipped.map(
-                (fid) => newCards.find((c) => c.id === fid)!
-            );
+            const [firstId, secondId] = newFlipped;
+            const first = newCards.find((c) => c.id === firstId)!;
+            const second = newCards.find((c) => c.id === secondId)!;
 
             if (first.value === second.value) {
-                first.matched = second.matched = true;
-                setMatchedCount((c) => c + 1);
+                setCards(newCards.map((c) =>
+                    c.id === firstId || c.id === secondId ? { ...c, matched: true } : c
+                ));
+                setMatchedCount((count) => count + 1);
                 setFlipped([]);
                 setLocked(false);
             } else {
                 setTimeout(() => {
-                    first.flipped = false;
-                    second.flipped = false;
-                    setCards([...newCards]);
+                    setCards((prev) => prev.map((c) =>
+                        c.id === firstId || c.id === secondId ? { ...c, flipped: false } : c
+                    ));
                     setFlipped([]);
                     setLocked(false);
                 }, 800);
@@ -75,17 +78,14 @@ const App: React.FC = () => {
     };
 
     const resetGame = () => {
-        const doubled = [...symbols, ...symbols].slice(0, 100);
-        const shuffled = shuffleArray(doubled).map((val, idx) => ({
-            id: idx,
-            value: val,
-            flipped: false,
-            matched: false,
-        }));
-        setCards(shuffled);
+        setCards(createInitialCards());
         setMatchedCount(0);
         setFlipped([]);
+        setLocked(false);
     };
+
+    const totalPairs = cards.length / 2;
+    const hasWon = cards.length > 0 && matchedCount === totalPairs;
 
     return (
         <div className="flex flex-col items-center justify-center min-h-screen bg-slate-100 px-4">
@@ -94,10 +94,12 @@ const App: React.FC = () => {
                 {cards.map((card) => (
                     <button
                         key={card.id}
+                        type="button"
                         onClick={() => handleFlip(card.id)}
                         disabled={card.flipped || card.matched}
-                        className={`card w-full aspect-square flex items-center justify-center text-lg sm:text-xl md:text-2xl font-bold rounded-lg 
-              ${card.matched ? "matched bg-green-200" : card.flipped ? "bg-indigo-200" : "bg-slate-300 hover:bg-slate-400"}`}
+                        aria-label={card.flipped || card.matched ? card.value : "Carta coperta"}
+                        className={`w-full aspect-square flex items-center justify-center text-lg sm:text-xl md:text-2xl font-bold rounded-lg
+              ${card.matched ? "bg-green-200" : card.flipped ? "bg-indigo-200" : "bg-slate-300 hover:bg-slate-400"}`}
                     >
                         {card.flipped || card.matched ? card.value : "❔"}
                     </button>
@@ -105,16 +107,17 @@ const App: React.FC = () => {
             </div>
 
             <div className="mt-4 sm:mt-6 text-gray-700 text-center text-sm sm:text-base">
-                Coppie trovate: {matchedCount} / {cards.length / 2}
+                Coppie trovate: {matchedCount} / {totalPairs}
             </div>
 
-            {matchedCount === cards.length / 2 && (
-                <div className="mt-3 sm:mt-4 text-xl sm:text-2xl font-semibold text-green-600 fade-in text-center">
+            {hasWon && (
+                <div className="mt-3 sm:mt-4 text-xl sm:text-2xl font-semibold text-green-600 text-center">
                     🎉 Hai vinto! 🎉
                 </div>
             )}
 
             <button
+                type="button"
                 onClick={resetGame}
                 className="mt-4 sm:mt-6 px-3 sm:px-4 py-2 bg-indigo-500 text-white rounded-lg hover:bg-indigo-600 transition text-sm sm:text-base"
             >
@@ -124,4 +127,4 @@ const App: React.FC = () => {
     );
 };
 
-export default App;
+export default Memory10x10;
