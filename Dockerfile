@@ -12,7 +12,7 @@ COPY index.html ./
 RUN npm run build
 
 # --- Runtime stage ---
-FROM nginx:1.29.8
+FROM nginx:1.31.1
 
 COPY --from=build /app/dist /usr/share/nginx/html
 COPY nginx.conf /etc/nginx/conf.d/default.conf
