@@ -1,16 +1,7 @@
-
-import './App.css'
 import Memory10x10 from './memory'
 
 function App() {
-
-  return (
-    <>
-      <div>
-        <Memory10x10 />
-      </div>
-    </>
-  )
+  return <Memory10x10 />
 }
 
 export default App
