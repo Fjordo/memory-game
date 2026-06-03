@@ -1,127 +1,102 @@
 # Memory Game 🎮
 
-Un gioco della memoria interattivo e moderno costruito con **React**, **TypeScript** e **Vite**. Il gioco presenta una griglia di 100 carte (10x10) con emoji di frutta, animali e simboli naturali.
+Un gioco della memoria interattivo costruito con **React 19**, **TypeScript** e **Vite**. Trova tutte le coppie di emoji girando le carte con un'animazione flip 3D.
 
-## 🎯 Caratteristiche
+## 🎯 Funzionalità
 
-- **Griglia 10x10**: 100 carte con 50 coppie di simboli
-- **Interfaccia moderna**: Realizzata con React 19 e Tailwind CSS
-- **Animazioni fluide**: Effetti di flip e transizioni smooth
-- **Logica di gioco**: Rileva automaticamente le coppie corrispondenti
-- **Stato globale**: Gestione dello stato con React Hooks
-- **Type-safe**: Completamente tipizzato con TypeScript
+- **Livelli di difficoltà** — 4×4 (8 coppie), 6×6 (18), 8×8 (32), 10×10 (50)
+- **Selezione categoria** — Tutti, 🍎 Frutta, 🥕 Verdura, 🐶 Animali, 🐮 Fattoria, ⭐ Natura
+- **Statistiche in tempo reale** — timer, contatore mosse, coppie trovate
+- **Record personale** — salvato in localStorage per ogni combinazione difficoltà/categoria
+- **Animazione flip 3D** — rotazione CSS con `perspective` e `rotateY`
+- **Responsive** — griglia adattiva da mobile a desktop
 
 ## 🚀 Quick Start
 
 ### Prerequisiti
 
-- Node.js 16+
-- npm o yarn
+- Node.js 22+
+- npm
 
 ### Installazione
 
 ```bash
-# Clonare il repository
 git clone https://github.com/Fjordo/memory-game.git
 cd memory-game
-
-# Installare le dipendenze
 npm install
 ```
 
-### Avvio in modalità sviluppo
+### Sviluppo
 
 ```bash
-npm run dev
+npm run dev        # dev server su http://localhost:5173
+npm run build      # build di produzione in dist/
+npm run preview    # anteprima della build
+npm run lint       # ESLint
+npm run test       # test (Vitest, run singolo)
+npm run test:watch # test in modalità watch
 ```
 
-L'applicazione sarà disponibile su `http://localhost:5173`
+## 🎮 Come giocare
 
-### Build per la produzione
-
-```bash
-npm run build
-```
-
-La build sarà generata nella cartella `dist/`
-
-### Anteprima della build
-
-```bash
-npm run preview
-```
-
-### Linting
-
-```bash
-npm run lint
-```
+1. Scegli la **difficoltà** e la **categoria** di emoji
+2. Clicca su una carta per scoprirla — il timer parte al primo click
+3. Clicca su una seconda carta per cercare la coppia
+4. Se i simboli corrispondono le carte restano scoperte, altrimenti si rigirano dopo 0,8s
+5. Completa tutte le coppie nel minor numero di mosse possibile
+6. Il record viene salvato automaticamente per ogni combinazione difficoltà/categoria
 
 ## 🐳 Docker
 
-L'applicazione è containerizzata con Docker e configurata per essere servita con Nginx.
-
-### Build dell'immagine Docker
-
 ```bash
 docker build -t memory-game .
-```
-
-### Esecuzione del container
-
-```bash
 docker run -p 80:80 memory-game
+# http://localhost
 ```
-
-L'applicazione sarà disponibile su `http://localhost`
 
 ## 📁 Struttura del progetto
 
 ```text
-├── src/
-│   ├── App.tsx           # Componente principale
-│   ├── memory.tsx        # Logica e UI del gioco
-│   ├── App.css           # Stili personalizzati
-│   ├── index.css         # Stili globali
-│   ├── main.tsx          # Entry point
-│   └── assets/           # Risorse statiche
-├── public/               # File pubblici
-├── Dockerfile            # Configurazione Docker
-├── nginx.conf            # Configurazione Nginx
-├── vite.config.ts        # Configurazione Vite
-├── tsconfig.json         # Configurazione TypeScript
-└── package.json          # Dipendenze del progetto
+src/
+  memory.tsx        # logica di gioco, UI, tipi e helper puri
+  memory.test.tsx   # test unitari (funzioni pure) e di componente
+  test-setup.ts     # setup @testing-library/jest-dom
+  App.tsx           # wrapper root
+  index.css         # Tailwind + CSS animazione flip 3D
+  main.tsx          # entry point React
+Dockerfile          # build multi-stage Node → Nginx
+nginx.conf          # header di sicurezza e cache strategy
+fly.toml            # deploy su Fly.io (CDG)
+vite.config.ts      # Vite + Vitest
 ```
 
-## 🛠️ Tecnologie utilizzate
+## 🛠️ Stack
 
-- **React 19** - Framework UI
-- **TypeScript ~5.9** - Type-safe language
-- **Vite 7** - Build tool e dev server
-- **Tailwind CSS 4** - Utility-first CSS framework
-- **ESLint 9** - Linting e code quality
-- **Docker** - Containerizzazione
-- **Nginx** - Web server
-
-## 🎮 Come giocare
-
-1. **Clicca su una carta** per scoprire il simbolo nascosto
-2. **Clicca su una seconda carta** per cercare la coppia
-3. **Se i simboli corrispondono**, le carte rimangono scoperte
-4. **Se non corrispondo**, le carte si rigirano
-5. **L'obiettivo** è trovare tutte le 50 coppie di simboli
+| Tecnologia | Versione | Ruolo |
+| --- | --- | --- |
+| React | 19 | UI framework |
+| TypeScript | ~5.9 | Type safety |
+| Vite | 8 | Build tool / dev server |
+| Tailwind CSS | 4 | Utility-first styling |
+| Vitest | 4 | Test runner |
+| React Testing Library | 16 | Component testing |
+| ESLint | 9 | Linting |
+| Docker + Nginx | — | Containerizzazione |
+| Fly.io | — | Hosting (region: CDG) |
 
 ## 📝 Script disponibili
 
 | Script | Descrizione |
-| ------ | ----------- |
-| `npm run dev` | Avvia il dev server con hot reload |
-| `npm run build` | Compila TypeScript e crea la build di produzione |
-| `npm run lint` | Esegue ESLint per verificare la qualità del codice |
-| `npm run preview` | Anteprima della build di produzione in locale |
+| --- | --- |
+| `npm run dev` | Dev server con hot reload |
+| `npm run build` | TypeScript check + build produzione |
+| `npm run lint` | ESLint |
+| `npm run preview` | Anteprima build locale |
+| `npm run test` | Vitest (run singolo, CI-friendly) |
+| `npm run test:watch` | Vitest in modalità watch |
 
-## 🐛 Bug segnalati / Issues
+## 🐛 Issue e contributi
 
-Se trovi un bug o vuoi suggerire una feature, crea una [issue](https://github.com/Fjordo/memory-game/issues) nel repository.
+Crea una [issue](https://github.com/Fjordo/memory-game/issues) per bug o suggerimenti.
 
 ---
