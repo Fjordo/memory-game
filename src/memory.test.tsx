@@ -5,12 +5,14 @@ import {
     createCards,
     formatTime,
     getSymbols,
+    isBestScore,
     isCategoryCompatible,
     loadBestScore,
     CATEGORY_SYMBOLS,
+    DIFFICULTIES,
     DIFFICULTY_CONFIG,
 } from "./memory-logic";
-import type { Difficulty, Category } from "./memory-logic";
+import type { Category } from "./memory-logic";
 import Memory10x10 from "./memory";
 
 // ─── Pure function unit tests ─────────────────────────────────────────────────
@@ -70,7 +72,7 @@ describe("getSymbols", () => {
 
 describe("isCategoryCompatible", () => {
     it("'tutti' is always compatible", () => {
-        (["4x4", "6x6", "8x8", "10x10"] as Difficulty[]).forEach((d) => {
+        DIFFICULTIES.forEach((d) => {
             expect(isCategoryCompatible("tutti", d)).toBe(true);
         });
     });
@@ -85,7 +87,7 @@ describe("isCategoryCompatible", () => {
 
 describe("createCards", () => {
     it("creates the correct number of cards for each difficulty", () => {
-        (["4x4", "6x6", "8x8", "10x10"] as Difficulty[]).forEach((d) => {
+        DIFFICULTIES.forEach((d) => {
             const { pairs } = DIFFICULTY_CONFIG[d];
             const cards = createCards(d, "tutti");
             expect(cards).toHaveLength(pairs * 2);
@@ -134,7 +136,24 @@ describe("loadBestScore", () => {
 
     it("returns null on corrupted data without throwing", () => {
         localStorage.setItem("memory-best:4x4:frutta", "not-json");
-        expect(() => loadBestScore("4x4", "frutta")).not.toThrow();
+        expect(loadBestScore("4x4", "frutta")).toBeNull();
+    });
+
+    it("returns null on structurally invalid saved scores", () => {
+        localStorage.setItem("memory-best:4x4:frutta", JSON.stringify({ moves: "12", time: -1 }));
+        expect(loadBestScore("4x4", "frutta")).toBeNull();
+    });
+});
+
+describe("isBestScore", () => {
+    it("accepts non-negative integer scores", () => {
+        expect(isBestScore({ moves: 12, time: 45 })).toBe(true);
+    });
+
+    it("rejects partial, negative, and non-integer scores", () => {
+        expect(isBestScore({ moves: 12 })).toBe(false);
+        expect(isBestScore({ moves: -1, time: 45 })).toBe(false);
+        expect(isBestScore({ moves: 12.5, time: 45 })).toBe(false);
     });
 });
 
@@ -161,6 +180,18 @@ describe("Memory10x10 component", () => {
         fireEvent.click(screen.getByRole("button", { name: "4x4" }));
         const cards = screen.getAllByRole("button", { name: "Carta coperta" });
         expect(cards).toHaveLength(16);
+    });
+
+    it("marks the selected difficulty and category semantically", () => {
+        render(<Memory10x10 />);
+        expect(screen.getByRole("button", { name: "10x10" })).toHaveAttribute("aria-pressed", "true");
+        expect(screen.getByRole("button", { name: /Tutti/ })).toHaveAttribute("aria-pressed", "true");
+
+        fireEvent.click(screen.getByRole("button", { name: "4x4" }));
+        fireEvent.click(screen.getByRole("button", { name: /Frutta/ }));
+
+        expect(screen.getByRole("button", { name: "4x4" })).toHaveAttribute("aria-pressed", "true");
+        expect(screen.getByRole("button", { name: /Frutta/ })).toHaveAttribute("aria-pressed", "true");
     });
 
     it("reveals the card value on click", () => {
@@ -201,6 +232,38 @@ describe("Memory10x10 component", () => {
         expect(screen.getAllByRole("button", { name: "Carta coperta" })).toHaveLength(100);
     });
 
+    it("flips mismatched cards back after the delay", () => {
+        render(<Memory10x10 />);
+        fireEvent.click(screen.getByRole("button", { name: "4x4" }));
+        const cards = screen.getAllByRole("button", { name: "Carta coperta" });
+        const first = cards[0];
+        const second = cards.find((card) => card.textContent !== first.textContent);
+
+        expect(second).toBeDefined();
+        fireEvent.click(first);
+        fireEvent.click(second!);
+        expect(screen.getByText("🔄 1 mosse")).toBeInTheDocument();
+
+        act(() => { vi.advanceTimersByTime(800); });
+        expect(screen.getAllByRole("button", { name: "Carta coperta" })).toHaveLength(16);
+    });
+
+    it("clears a pending mismatch timeout when restarting", () => {
+        render(<Memory10x10 />);
+        fireEvent.click(screen.getByRole("button", { name: "4x4" }));
+        const cards = screen.getAllByRole("button", { name: "Carta coperta" });
+        const first = cards[0];
+        const second = cards.find((card) => card.textContent !== first.textContent);
+
+        fireEvent.click(first);
+        fireEvent.click(second!);
+        fireEvent.click(screen.getByRole("button", { name: /Ricomincia/ }));
+        act(() => { vi.advanceTimersByTime(800); });
+
+        expect(screen.getAllByRole("button", { name: "Carta coperta" })).toHaveLength(16);
+        expect(screen.getByText("🔄 0 mosse")).toBeInTheDocument();
+    });
+
     it("does not show the win message at start", () => {
         render(<Memory10x10 />);
         expect(screen.queryByText(/Hai vinto/)).toBeNull();
@@ -232,5 +295,29 @@ describe("Memory10x10 component", () => {
         localStorage.setItem("memory-best:10x10:tutti", JSON.stringify({ moves: 42, time: 90 }));
         render(<Memory10x10 />);
         expect(screen.getByText(/Record: 42 mosse \/ 1m 30s/)).toBeInTheDocument();
+    });
+
+    it("saves a new best score when all pairs are matched", () => {
+        render(<Memory10x10 />);
+        fireEvent.click(screen.getByRole("button", { name: "4x4" }));
+        act(() => { vi.advanceTimersByTime(3000); });
+
+        const pairs = new Map<string, HTMLButtonElement[]>();
+        screen.getAllByRole("button", { name: "Carta coperta" }).forEach((card) => {
+            const value = card.textContent ?? "";
+            pairs.set(value, [...(pairs.get(value) ?? []), card as HTMLButtonElement]);
+        });
+
+        pairs.forEach(([first, second]) => {
+            fireEvent.click(first);
+            fireEvent.click(second);
+        });
+
+        expect(screen.getByText(/Hai vinto in 8 mosse e 0s/)).toBeInTheDocument();
+        expect(screen.getByText(/Nuovo record/)).toBeInTheDocument();
+        expect(JSON.parse(localStorage.getItem("memory-best:4x4:tutti") ?? "{}")).toEqual({
+            moves: 8,
+            time: 0,
+        });
     });
 });

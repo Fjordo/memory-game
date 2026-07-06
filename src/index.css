@@ -48,3 +48,9 @@
 .card-front {
   transform: rotateY(180deg);
 }
+
+@media (prefers-reduced-motion: reduce) {
+  .card-inner {
+    transition: none;
+  }
+}
