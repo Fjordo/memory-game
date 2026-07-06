@@ -9,8 +9,8 @@ import {
     loadBestScore,
     CATEGORY_SYMBOLS,
     DIFFICULTY_CONFIG,
-} from "./memory";
-import type { Difficulty, Category } from "./memory";
+} from "./memory-logic";
+import type { Difficulty, Category } from "./memory-logic";
 import Memory10x10 from "./memory";
 
 // ─── Pure function unit tests ─────────────────────────────────────────────────
