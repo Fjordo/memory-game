@@ -50,15 +50,17 @@ npm run test:watch # test in modalità watch
 
 ```bash
 docker build -t memory-game .
-docker run -p 80:80 memory-game
-# http://localhost
+docker run -p 8080:8080 memory-game
+# http://localhost:8080
 ```
 
 ## 📁 Struttura del progetto
 
 ```text
 src/
-  memory.tsx        # logica di gioco, UI, tipi e helper puri
+  memory.tsx        # UI del gioco e wiring dei controlli
+  memory-logic.ts   # tipi, configurazione, helper puri e persistenza record
+  use-memory-game.ts # hook con stato, timer e regole di gioco
   memory.test.tsx   # test unitari (funzioni pure) e di componente
   test-setup.ts     # setup @testing-library/jest-dom
   App.tsx           # wrapper root
@@ -75,13 +77,13 @@ vite.config.ts      # Vite + Vitest
 | Tecnologia | Versione | Ruolo |
 | --- | --- | --- |
 | React | 19 | UI framework |
-| TypeScript | ~5.9 | Type safety |
+| TypeScript | ~6.0 | Type safety |
 | Vite | 8 | Build tool / dev server |
 | Tailwind CSS | 4 | Utility-first styling |
 | Vitest | 4 | Test runner |
 | React Testing Library | 16 | Component testing |
-| ESLint | 9 | Linting |
-| Docker + Nginx | — | Containerizzazione |
+| ESLint | 10 | Linting |
+| Docker + Nginx unprivileged | — | Containerizzazione |
 | Fly.io | — | Hosting (region: CDG) |
 
 ## 📝 Script disponibili

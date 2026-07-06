@@ -99,9 +99,8 @@ Il file `fly.toml` già generato contiene:
 | `app` | Nome univoco dell'app su Fly.io |
 | `primary_region` | Regione datacenter principale |
 | `build.dockerfile` | Percorso del Dockerfile |
-| `http_service.ports` | Configurazione porte (80/443) |
+| `http_service.internal_port` | Porta interna del container (`8080`) |
 | `http_service.checks` | Health check dell'app |
-| `force_https` | Redirige HTTP → HTTPS (secure) |
 
 ## 🔧 Comandi utili
 
@@ -207,10 +206,10 @@ flyctl releases rollback
 Il file `nginx.conf` include già:
 
 - ✅ Security headers (CSP, X-Frame-Options, etc.)
-- ✅ HTTPS force redirect
 - ✅ Cache headers ottimizzati
 - ✅ Health check
-- ✅ Permissioni minimali (geolocation, camera, microphone disabilitate)
+- ✅ Runtime Nginx non privilegiato su porta `8080`
+- ✅ Permissioni browser minimali (geolocation, camera, microphone disabilitate)
 
 ## 📞 Supporto
 
