@@ -92,7 +92,10 @@ flyctl deploy --now
 
 ### 5. Deployment automatico da GitHub Actions
 
-La pipeline in `.github/workflows/test.yml` deploya automaticamente su Fly.io dopo un push su `main`, ma solo se lint, test e build passano.
+Il repository usa due workflow separati:
+
+- `.github/workflows/ci.yml` esegue lint, test e build su pull request e push su `main`, `development` e `feature/**`.
+- `.github/workflows/deploy.yml` parte solo quando il workflow `CI` termina con successo dopo un push su `main`.
 
 Per abilitarla:
 
@@ -107,7 +110,7 @@ flyctl tokens create deploy -x 999999h
 4. Crea un repository secret chiamato `FLY_API_TOKEN`.
 5. Incolla il token come valore del secret.
 
-La job `deploy` usa `flyctl deploy --remote-only`, quindi il build Docker viene eseguito dai builder remoti di Fly.io usando `fly.toml` e `Dockerfile` presenti nel repository.
+Il job `deploy` usa `flyctl deploy --remote-only` e fa checkout dello stesso commit che ha superato la CI, quindi il build Docker viene eseguito dai builder remoti di Fly.io usando `fly.toml` e `Dockerfile` presenti nel repository.
 
 ## 📝 File `fly.toml` - Spiegazione
 
