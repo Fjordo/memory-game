@@ -1,5 +1,6 @@
-import { render, screen, fireEvent, act } from "@testing-library/react";
-import { describe, it, expect, beforeEach, vi } from "vitest";
+import { render, screen, fireEvent, act, cleanup } from "@testing-library/react";
+import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
+import "@testing-library/jest-dom/vitest";
 import {
     shuffleArray,
     createCards,
@@ -167,6 +168,7 @@ describe("Memory10x10 component", () => {
 
     afterEach(() => {
         vi.useRealTimers();
+        cleanup();
     });
 
     it("renders 100 cards by default (10x10)", () => {
